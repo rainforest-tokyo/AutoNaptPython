@@ -1,0 +1,5 @@
+{
+  "ports": [
+    { "port": "20-50000",     "name": "20-50000",     "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" }
+  ]
+}

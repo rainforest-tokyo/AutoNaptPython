@@ -1,1 +1,13 @@
+
+# vi swap file
+*.swp
+
+# python Code
 *.pyc
+
+# geoip DataBase
+# detail/geoip/GeoLite2-ASN.mmdb
+# detail/geoip/GeoLite2-Country.mmdb
+# detail/geoip/GeoLite2-City.mmdb
+*.mmdb
+
