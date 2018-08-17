@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#-----------------------------------
+# AutoNaptPython 
+#
+# Copyright (c) 2018 RainForest
+#
+# This software is released under the MIT License.
+# http://opensource.org/licenses/mit-license.php
+#-----------------------------------
+
 import os
 import sys
 import time
@@ -55,7 +64,7 @@ class AutoNapt(object):
 
         i = 1
 
-        while i < len(argv[1:]):
+        while i <= len(argv[1:]):
             if argv[i] == '--ports':
                 ports       = argv[i + 1]
                 i = i + 2
@@ -105,7 +114,7 @@ class AutoNapt(object):
 
     @staticmethod
     def usage():
-        print('python autonapt.py [--ports <port-setting.json>] [--protocols <protocol-setting.json>] [--bind <bind-ip-address>] [--log <logfile>]')
+        print('python autonapt.py [--ports <port-setting.json>] [--protocols <protocol-setting.json>] [--bind <bind-ip-address>] [--log <logfile>] [--elastic]')
         print('  --ports     : lisenするポートの設定を記述したファイルを指定 規定値は ./ports.json')
         print('  --protocols : プロトコルの判定と接続先の設定を記述したファイルを指定 規定値は ./protocol.json')
         print('  --bind      : bindをするアドレスを指定 規定値はINADDR_ANYでbindする')
