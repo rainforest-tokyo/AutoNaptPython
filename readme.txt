@@ -3,7 +3,7 @@ AutoNaptPython
 広いレンジのPORTで待ち受けをして、受信したデータでプロトコル判定を
 行い、後ろにいるハニーポットなどにデータを流すツール。
 
-記号方法例: autonapt.sh 
+起動方法例: autonapt.sh 
 
 ■使い方
 	python autonapt.py [--ports <port-setting.json>] [--protocols <protocol-setting.json>] [--bind <bind-ip-address>] [--log <logfile>] [--elastic]
