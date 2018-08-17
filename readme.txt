@@ -3,7 +3,7 @@ AutoNaptPython
 広いレンジのPORTで待ち受けをして、受信したデータでプロトコル判定を
 行い、後ろにいるハニーポットなどにデータを流すツール。
 
-記号方法例: autonapt.sh 
+起動方法例: autonapt.sh 
 
 ■使い方
 	python autonapt.py [--ports <port-setting.json>] [--protocols <protocol-setting.json>] [--bind <bind-ip-address>] [--log <logfile>] [--elastic]
@@ -58,6 +58,14 @@ AutoNaptPython
 		packetsize       : パケットのサイズ
 		packet           : エスケープ処理を施したパケットの内容文字列(ASCII)
 		                   長い場合packetsizeより短い長さに省略される場合がある
+
+geopipは下記のURLからダウンロード
+https://dev.maxmind.com/geoip/geoip2/geolite2/
+
+下記に展開する
+detail/geoip/GeoLite2-ASN.mmdb
+detail/geoip/GeoLite2-City.mmdb
+detail/geoip/GeoLite2-Country.mmdb
 
 This software is released under the MIT License, see LICENSE.txt.
 
