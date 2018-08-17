@@ -116,8 +116,11 @@ class SocketPoller(object):
         self.on_started(None)
 
         while(self.running):
-            self.do_poll()
-            self.on_idle(None)
+            try :
+                self.do_poll()
+                self.on_idle(None)
+            except :
+                pass
 
         self.on_stopped(None)
 
