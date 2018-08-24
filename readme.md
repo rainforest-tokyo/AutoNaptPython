@@ -1,11 +1,14 @@
-AutoNaptPython
+# AutoNaptPython
 
-広いレンジのPORTで待ち受けをして、受信したデータでプロトコル判定を
-行い、後ろにいるハニーポットなどにデータを流すツール。
+<details><summary>広いレンジのPORTで待ち受けをして、受信したデータでプロトコル判定を
+行い、後ろにいるハニーポットなどにデータを流すツール。</summary></details>
 
-起動方法例: autonapt.sh 
+<image src="./images/ports.png" width=70%>
 
-■使い方
+## 起動方法例: 
+	./autonapt.sh 
+
+## 使い方
 	python autonapt.py [--ports <port-setting.json>] [--protocols <protocol-setting.json>] [--bind <bind-ip-address>] [--log <logfile>] [--elastic]
 	  --ports     : lisenするポートの設定を記述したファイルを指定 規定値は ./ports.json
 	  --protocols : プロトコルの判定と接続先の設定を記述したファイルを指定 規定値は ./protocol.json
@@ -13,8 +16,8 @@ AutoNaptPython
 	  --log       : ログを記録する
 	  --elastic   : elasticsearchにログを記録する
 
-■設定ファイル
-●ports.json
+## 設定ファイル
+### orts.json
 	listenするポートリストを記述する
 		ports            : ポート設定のリスト
 		name             : ログなどに出力される可読名称
@@ -23,7 +26,7 @@ AutoNaptPython
 		default_protocol : 上記タイムアウト時に接続しに行くプロトコル名(protocols.json内の定義名に対応)
 		comment          : コメント
 
-●protocols.json
+### protocols.json
 	プロトコル判定方法と接続先のサーバーを記述する
 		protocols        : プロトコル設定のリスト
 		name             : ログなどに出力される可読名称(ports.json)
@@ -36,10 +39,10 @@ AutoNaptPython
 		remote           : 対象のリモート情報の一致条件(現在、未実装)
 		default_protocol : 全ての条件に一致しない場合ｎ使用するプロトコル名
 
-●elastic.ini
+### elastic.ini
 	Elasticsearch接続先情報を記述する
 
-■ログの形式
+## ログの形式
 	ログは１件のログをJSON文字列化し１行の文字列として出力
 		datetime         : ログ出力日時
 		connection_id    : 1から順に振られるID
@@ -60,12 +63,12 @@ AutoNaptPython
 		                   長い場合packetsizeより短い長さに省略される場合がある
 
 geopipは下記のURLからダウンロード
-https://dev.maxmind.com/geoip/geoip2/geolite2/
+	https://dev.maxmind.com/geoip/geoip2/geolite2/
 
-下記に展開する
-detail/geoip/GeoLite2-ASN.mmdb
-detail/geoip/GeoLite2-City.mmdb
-detail/geoip/GeoLite2-Country.mmdb
+	下記に展開する
+	detail/geoip/GeoLite2-ASN.mmdb
+	detail/geoip/GeoLite2-City.mmdb
+	detail/geoip/GeoLite2-Country.mmdb
 
-This software is released under the MIT License, see LICENSE.txt.
+<strong>This software is released under the MIT License, see LICENSE.txt.</strong>
 
