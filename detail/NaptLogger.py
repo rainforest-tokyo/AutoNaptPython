@@ -142,9 +142,9 @@ class NaptLogger(object):
                 #'packet':           Utils.get_escaped_string(data[0:size2])
             })
 
-        if( (self.elastic != None) and ('HTTP' in protocol) ) :
-            self.append_log(log)
-            self.elastic.store( log )
+        #if( (self.elastic != None) and ((protocol != None) and ('HTTP' in protocol)) ) :
+        self.append_log(log)
+        self.elastic.store( log )
 
     def log_send(self, conn, data, offset, size):
         Utils.expects_type(NaptConnection, conn, 'conn')
