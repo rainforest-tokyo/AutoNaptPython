@@ -25,7 +25,7 @@ class ProtocolSettingList(object):
     def match(self, packet, use_default_when_nomatch):
         for i in self.protocols:
             for j in i.rules:
-                if j.match(packet) is not None:
+                if j.regex.match(packet) is not None:
                     return i
 
         return self.default_protocol_setting if use_default_when_nomatch else None

@@ -123,10 +123,7 @@ class NaptListenerPart(SocketSelector):
 
             accepted.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 0, 0))
 
-            #################
-            # Add Okada
             accepted.settimeout(15.0)
-            #################
 
             e       = NaptListenerEventArgs(accepted, so);
 

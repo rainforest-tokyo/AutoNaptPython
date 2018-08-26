@@ -5,12 +5,11 @@
 
     { "name": "HTTP",       "server": { "address": "172.30.0.68", "port": 80  }, "comment": "", "rules": [ { "name": "HTTP-GET",   "packet": "^GET ",                 "remote": { "address": "any", "port": "any" } },
                                                                                                                { "name": "HTTP-POST",  "packet": "^POST ",                "remote": { "address": "any", "port": "any" } } ] },
-    { "name": "HTTPS",      "server": { "address": "172.30.0.68", "port": 80  }, "comment": "", "rules": [ { "name": "",           "packet": "^\\x16\\x03(\\x01|\\x02|\\x03)", "remote": { "address": "any", "port": "any" } } ] },
-    { "name": "SSH",        "server": { "address": "172.30.0.68", "port": 22  }, "comment": "", "rules": [ { "name": "",           "packet": "^SSH- ",                "remote": { "address": "any", "port": "any" } } ] },
-    { "name": "VNC",        "server": { "address": "172.30.0.68", "port": 5900  }, "comment": "", "rules": [ { "name": "",           "packet": "^RFB 003\\.",           "remote": { "address": "any", "port": "any" } } ] },
-    { "name": "SMB",        "server": { "address": "172.30.0.68", "port": 445  }, "comment": "", "rules": [ { "name": "",           "packet": "^\\x00\\x00..\\xFFSMB", "remote": { "address": "any", "port": "any" } },
-                                                                                                               { "name": "",           "packet": "^\\x00\\x00..\\xFESMB", "remote": { "address": "any", "port": "any" } } ] },
-    { "name": "SIP",        "server": { "address": "172.30.0.68", "port": 5060  }, "comment": "", "rules": [ { "name": "",           "packet": "^INVITE ",              "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "HTTPS",      "server": { "address": "172.30.0.68", "port": 80  }, "comment": "", "rules": [ { "name": "HTTPS",           "packet": "^\\x16\\x03(\\x01|\\x02|\\x03)", "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "SSH",        "server": { "address": "172.30.0.68", "port": 22  }, "comment": "", "rules": [ { "name": "SSH",           "packet": "^SSH-",                "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "VNC",        "server": { "address": "172.30.0.68", "port": 5900  }, "comment": "", "rules": [ { "name": "VNC",           "packet": "^RFB 003\\.",           "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "SMB",        "server": { "address": "172.30.0.68", "port": 445  }, "comment": "", "rules": [ { "name": "SMB",           "packet": "^\\x00\\x00..\\xFFSMB", "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "SIP",        "server": { "address": "172.30.0.68", "port": 5060  }, "comment": "", "rules": [ { "name": "SIP",           "packet": "^INVITE ",              "remote": { "address": "any", "port": "any" } } ] },
 
     { "name": "Telnet",     "server": { "address": "172.30.0.68", "port": 23  }, "comment": "", "rules": null }
   ],

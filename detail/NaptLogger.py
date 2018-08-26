@@ -126,25 +126,28 @@ class NaptLogger(object):
         log     = None
         store_data   = data[0:size2]
 
-        protocol= ''
-        try :
+        with conn.lock:
             status  = conn.tag
             protocol= status.protocol_setting
-        except :
-            pass
+            c_remote= conn.client.socket.getpeername()
+            c_local = conn.client.socket.getsockname()
 
-        with conn.lock:
             log     = self.create_log(conn.id, 'recv', {
+                'protocol': protocol.name,
                 'packet_size':      size,
                 'packet':           Utils.get_string_from_bytes(store_data, 'charmap'),
-                'sha1':             hashlib.sha1(store_data).hexdigest()
+                'sha1':             hashlib.sha1(store_data).hexdigest(),
+                'client': {
+                    'remote':   { 'address': c_remote[0], 'port': c_remote[1] }, 
+                    'local':    { 'address': c_local[0],  'port': c_local[1] },
+                }
                 #'packet':           Utils.get_string_from_bytes(data[0:size2], 'ascii')
                 #'packet':           Utils.get_escaped_string(data[0:size2])
             })
 
-        #if( (self.elastic != None) and ((protocol != None) and ('HTTP' in protocol)) ) :
-        self.append_log(log)
-        self.elastic.store( log )
+        if( (self.elastic != None) and ('Telnet' not in protocol.name) ) :
+            self.append_log(log)
+            self.elastic.store( log )
 
     def log_send(self, conn, data, offset, size):
         Utils.expects_type(NaptConnection, conn, 'conn')

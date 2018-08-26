@@ -38,7 +38,7 @@ class NaptConnection(object):
         self.is_closed      = False
         self.tag            = None
         self.tls            = False
-        self.debug          = True
+        self.debug          = False
 
         self.connected      = Event()
         self.closed         = Event()
@@ -154,10 +154,7 @@ class NaptConnection(object):
     # private
     def recv_client(self):
         try:
-            #----------
-            # Add Okada
             self.client.socket.settimeout(5.0)
-            #----------
             data= self.client.socket.recv(4096)
             e   = NaptConnectionEventArgs(self, data, 0, len(data))
 
@@ -177,10 +174,7 @@ class NaptConnection(object):
     # private
     def recv_server(self):
         try:
-            #----------
-            # Add Okada
             self.server.socket.settimeout(5.0)
-            #----------
             data= self.server.socket.recv(4096)
             e   = NaptConnectionEventArgs(self, data, 0, len(data))
 

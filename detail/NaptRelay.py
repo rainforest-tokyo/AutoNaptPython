@@ -30,7 +30,7 @@ class NaptRelay(object):
         self.lock       = Lock()
         self.sockets    = {}    # Dictionary<Socket, NaptSocket>
         self.status     = NaptRelayStatus.Stopped
-        self.debug      = True
+        self.debug      = False
 
     def __str__(self):
         return 'NaptRelay { %s }' %', '.join([

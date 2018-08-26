@@ -40,7 +40,7 @@ class AutoNapt(object):
         self.conn_id            = 0
         self.logging            = False
         self.logger             = None
-        self.debug              = True
+        self.debug              = False
 
         self.accept_list        = []
 
@@ -225,9 +225,6 @@ class AutoNapt(object):
         if self.debug:
             print('recv: %d: %s' % (conn.id, str(conn)))
 
-        if self.logging and self.logger is not None:    ### LOG ###
-            self.logger.log_recv(conn, e.data, e.offset, e.size)
-
         with conn.lock:
             status  = conn.tag;
 
@@ -242,6 +239,9 @@ class AutoNapt(object):
             #conn.tls   = True
 
             self.connect(conn, protocol)
+
+        if self.logging and self.logger is not None:    ### LOG ###
+            self.logger.log_recv(conn, e.data, e.offset, e.size)
 
     # private
     def conn_server_recieved(self, sender, e):
@@ -293,10 +293,8 @@ class AutoNaptRelay(NaptRelay):
         SocketPoller.get_instance().idle += self.poller_idle
 
     def process_timeout(self):
-        #---------------------
-        # Okada
         return
-        #---------------------
+
         now = datetime.datetime.now()
 
         # todo 未接続のみに最適化

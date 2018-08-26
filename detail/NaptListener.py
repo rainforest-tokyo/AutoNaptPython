@@ -95,10 +95,7 @@ class NaptListener(object):
         Utils.expects_type(socket.socket, so, 'so')
 
         try:
-            #-------------
-            # Add Okada
             so.settimeout(3.0)
-            #-------------
             so_accepted, remote= so.accept();
 
             so_accepted.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 0, 0))

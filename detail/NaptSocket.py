@@ -37,7 +37,7 @@ class NaptSocket(object):
         self.status         = NaptSocketStatus.Disconnected if so is None else NaptSocketStatus.Connected
         self.send_buffers   = deque()
         self.tag            = None
-        self.debug          = True
+        self.debug          = False
 
         if self.socket is None:
             self.peername   = None
@@ -134,10 +134,7 @@ class NaptSocket(object):
                 data= self.send_buffers.popleft()   # Dequeue
 
             try:
-                #----------
-                # Add Okada
                 self.socket.settimeout(5.0)
-                #----------
                 self.socket.sendall(data)
             except Exception as ex:
                 Utils.print_exception(ex)

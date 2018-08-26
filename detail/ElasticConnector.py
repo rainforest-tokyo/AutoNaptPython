@@ -33,7 +33,7 @@ class ElasticConnector(object):
         conf_url          = config.get('env', 'url')
         conf_verify_certs = False if config.get('env', 'verify_certs').lower() == "false" else True
 
-        self.es = Elasticsearch(conf_url, verify_certs=conf_verify_certs)
+        self.es = Elasticsearch(conf_url, verify_certs=False)
         self.settings = {
             "settings": {
               "index": {
