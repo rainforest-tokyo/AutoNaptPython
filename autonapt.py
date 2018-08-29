@@ -12,7 +12,10 @@
 
 import os
 import sys
+import urllib3
 from types import MethodType
+
+urllib3.disable_warnings()
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/detail')
 

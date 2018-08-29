@@ -74,6 +74,9 @@ class NaptConnection(object):
         try:
             self.server.connect(endpoint)   # blocking
 
+            self.client.socket.settimeout(5.0)
+            self.server.socket.settimeout(5.0)
+
             with self.lock:
                 if self.is_closed:
                     # todo close
@@ -81,7 +84,7 @@ class NaptConnection(object):
 
                 self.is_connected = True
 
-            print('INVOKE: on_connected')
+            #print('INVOKE: on_connected')
 
             self.on_connected(None)
         except Exception as ex:
@@ -155,6 +158,7 @@ class NaptConnection(object):
     def recv_client(self):
         try:
             self.client.socket.settimeout(5.0)
+            self.server.socket.settimeout(5.0)
             data= self.client.socket.recv(4096)
             e   = NaptConnectionEventArgs(self, data, 0, len(data))
 
@@ -174,6 +178,7 @@ class NaptConnection(object):
     # private
     def recv_server(self):
         try:
+            self.client.socket.settimeout(5.0)
             self.server.socket.settimeout(5.0)
             data= self.server.socket.recv(4096)
             e   = NaptConnectionEventArgs(self, data, 0, len(data))

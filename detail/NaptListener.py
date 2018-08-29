@@ -106,6 +106,7 @@ class NaptListener(object):
         except Exception as ex:
             print('do_recv: Exception', flush=True)
             Utils.print_exception(ex)
+            print('', flush=True)
             try:
                 key = [k for k, v in self.sockets.items() if v == so][0]
                 self.remove_port(key)
