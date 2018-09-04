@@ -138,6 +138,7 @@ class NaptSocket(object):
                 self.socket.sendall(data)
             except Exception as ex:
                 Utils.print_exception(ex)
+                self.do_close()
                     
 class NaptSocketStatus(Enum):
     Disconnected= 1

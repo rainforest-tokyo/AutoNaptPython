@@ -90,6 +90,7 @@ class NaptConnection(object):
         except Exception as ex:
             print('  endpoint: %s' % str(endpoint))
             Utils.print_exception(ex)
+            self.close()
 
     # public
     def close(self):
