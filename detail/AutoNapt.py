@@ -280,6 +280,7 @@ class AutoNapt(object):
             conn.connect(endpoint)  # async
         except Exception as ex:
             Utils.print_exception(ex)
+            conn.close()
 
 # todo AutoNaptに統合
 class AutoNaptRelay(NaptRelay):
