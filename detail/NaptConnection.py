@@ -179,7 +179,7 @@ class NaptConnection(object):
     # private
     def recv_server(self):
         try:
-            self.client.socket.settimeout(5.0)
+            #self.client.socket.settimeout(5.0)
             self.server.socket.settimeout(5.0)
             data= self.server.socket.recv(4096)
             e   = NaptConnectionEventArgs(self, data, 0, len(data))
