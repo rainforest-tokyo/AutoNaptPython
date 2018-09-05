@@ -95,7 +95,7 @@ class NaptSocket(object):
 
     # private
     def do_close(self):
-        Utils.assertion(self.lock.locked(), 'need lock')
+        #Utils.assertion(self.lock.locked(), 'need lock')
 
         self.status = NaptSocketStatus.Closed
 
@@ -134,7 +134,7 @@ class NaptSocket(object):
                 data= self.send_buffers.popleft()   # Dequeue
 
             try:
-                self.socket.settimeout(5.0)
+                #self.socket.settimeout(5.0)
                 self.socket.sendall(data)
             except Exception as ex:
                 Utils.print_exception(ex)
