@@ -99,7 +99,10 @@ class NaptSocket(object):
 
         self.status = NaptSocketStatus.Closed
 
-        self.socket.close() # non-blocking
+        try:
+            self.socket.close() # non-blocking
+        except Exception as ex:
+            Utils.print_exception(ex)
 
     # internal
     def push(self, data, offset, size):

@@ -101,8 +101,14 @@ class NaptConnection(object):
             if self.is_closed:
                 return
 
-            self.close_client()
-            self.close_server()
+            try:
+                self.close_client()
+            except Exception as ex:
+                Utils.print_exception(ex)
+            try:
+                self.close_server()
+            except Exception as ex:
+                Utils.print_exception(ex)
 
             self.is_closed    = True
 
