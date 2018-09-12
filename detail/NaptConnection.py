@@ -38,7 +38,7 @@ class NaptConnection(object):
         self.is_closed      = False
         self.tag            = None
         self.tls            = False
-        self.debug          = False
+        self.debug          = True
 
         self.connected      = Event()
         self.closed         = Event()
@@ -94,23 +94,16 @@ class NaptConnection(object):
 
     # public
     def close(self):
+        with self.lock:
+            #if self.is_closed:
+            #    return
+
+            self.close_client()
+            self.close_server()
+            self.is_closed    = True
+
         if self.debug:
             print('NaptConnection.close: %s' % str(self))
-
-        with self.lock:
-            if self.is_closed:
-                return
-
-            try:
-                self.close_client()
-            except Exception as ex:
-                Utils.print_exception(ex)
-            try:
-                self.close_server()
-            except Exception as ex:
-                Utils.print_exception(ex)
-
-            self.is_closed    = True
 
         self.on_closed(None)
 
@@ -205,12 +198,15 @@ class NaptConnection(object):
 
     # private
     def close_client(self):
-        if self.debug:
-            print('  NaptConnection.close_client: %s' % str(self.client))
+        #if self.debug:
+        #    print('  NaptConnection.close_client: %s' % str(self.client))
 
         try:
             self.on_client_closing(None)
+        except Exception as ex:
+            Utils.print_exception(ex)
 
+        try:
             if self.client.close():
                 self.on_client_closed(None)
         except Exception as ex:
@@ -218,12 +214,15 @@ class NaptConnection(object):
 
     # private void
     def close_server(self):
-        if self.debug:
-            print('  NaptConnection.close_server: %s' % str(self.server))
+        #if self.debug:
+        #    print('  NaptConnection.close_server: %s' % str(self.server))
 
         try:
             self.on_server_closing(None)
+        except Exception as ex:
+            Utils.print_exception(ex)
 
+        try:
             if self.server.close():
                 self.on_server_closed(None);
         except Exception as ex:
