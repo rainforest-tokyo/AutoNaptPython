@@ -137,7 +137,7 @@ class NaptSocket(object):
                 data= self.send_buffers.popleft()   # Dequeue
 
             try:
-                #self.socket.settimeout(5.0)
+                self.socket.settimeout(5.0)
                 self.socket.sendall(data)
             except Exception as ex:
                 Utils.print_exception(ex)
