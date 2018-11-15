@@ -1,6 +1,10 @@
 
 # vi swap file
 *.swp
+#
+# tar
+*.gz
+*.tar
 
 # python Code
 *.pyc
