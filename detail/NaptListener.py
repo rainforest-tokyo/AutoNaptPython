@@ -35,6 +35,7 @@ class NaptListener(object):
         self.bindaddr   = bindaddr
         self.sockets    = {}    # Dictionary<int, Socket>
         self.status     = NaptListenerStatus.Stopped
+        self.port       = 0 
 
         self.accepted   = Event2('NaptListenerEventArgs')
 
@@ -56,6 +57,7 @@ class NaptListener(object):
         so      = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
         bindaddr= '0.0.0.0' if self.bindaddr == 'any' else self.bindaddr
         endpoint= (bindaddr, port)
+        self.port       = port 
 
         print('  %s' % str(endpoint))
 
@@ -100,7 +102,7 @@ class NaptListener(object):
 
             so_accepted.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 0, 0))
 
-            e       = NaptListenerEventArgs(so_accepted, so);
+            e       = NaptListenerEventArgs(so_accepted, so, self.port);
 
             self.on_accepted(e)
         except Exception as ex:

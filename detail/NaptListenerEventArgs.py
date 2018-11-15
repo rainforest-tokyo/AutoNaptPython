@@ -11,6 +11,7 @@
 #-----------------------------------
 
 class NaptListenerEventArgs(object):
-    def __init__(self, accepted, accepter):
+    def __init__(self, accepted, accepter, port):
         self.accepted    = accepted
         self.accepter    = accepter
+        self.port        = port

@@ -39,6 +39,7 @@ class NaptConnection(object):
         self.tag            = None
         self.tls            = False
         self.debug          = True
+        self.bind_port      = 0
 
         self.connected      = Event()
         self.closed         = Event()

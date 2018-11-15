@@ -19,7 +19,7 @@ from Utils import Utils
 
 try:
     from NaptListener import NaptListener
-    from NaptListener2 import NaptListener2
+#    from NaptListener2 import NaptListener2
     from NaptRelay import NaptRelay
     from NaptConnection import NaptConnection
     from NaptLogger import NaptLogger
@@ -156,6 +156,7 @@ class AutoNapt(object):
     # private
     def listener_accepted(self, sender, e):
         conn        = NaptConnection(e.accepted, None)
+        conn.bind_port        = e.port
 
         # Check Connection
         remote  = conn.client.peername
@@ -227,13 +228,16 @@ class AutoNapt(object):
 
         with conn.lock:
             status  = conn.tag;
+            remote  = conn.client.peername
+            local   = conn.client.sockname
+            bind_port  = local[1]
 
             if conn.is_closed or status.connected or status.connecting:
                 return
 
             #s       = Utils.get_string_from_bytes(e.data[e.offset:e.offset+e.size], 'ascii')
             s       = Utils.get_string_from_bytes(e.data[e.offset:e.offset+e.size], 'charmap')
-            protocol= self.protocol_settings.match(s, True)
+            protocol= self.protocol_settings.match(s, bind_port, True)
 
             # todo TLS reverse connection
             #conn.tls   = True
