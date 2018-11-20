@@ -81,7 +81,7 @@ class AutoNapt(object):
                 bind        = argv[i + 1]
                 i = i + 2
             elif argv[i] == '--log':
-                logfile     = argv[i + 1]
+                logdir      = argv[i + 1]
                 i = i + 2
             elif argv[i] == '--elastic':
                 elastic     = True
@@ -96,8 +96,8 @@ class AutoNapt(object):
         napt.port_settings      = PortSettingList.from_json_file(ports, port_key)
         napt.protocol_settings  = ProtocolSettingList.from_json_file(protocols, protocol_key)
 
-        if logfile is not None:
-            napt.logger = NaptLogger(logfile, elastic)
+        if logdir is not None:
+            napt.logger = NaptLogger(logdir, elastic)
             napt.logging= True
 
         napt.setup()

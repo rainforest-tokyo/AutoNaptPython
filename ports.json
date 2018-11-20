@@ -5,6 +5,7 @@
     { "port": "54-79",     "name": "54-79",     "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
     { "port": "82-5600",     "name": "82-5600",     "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
     { "port": "5602-6080",     "name": "5602-6080",     "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
-    { "port": "6082-50000",     "name": "6082-50000",     "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" }
+    { "port": "6082-8004",     "name": "6082-8004",     "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "8006-50000",     "name": "8006-50000",     "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" }
   ]
 }

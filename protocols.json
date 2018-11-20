@@ -1,10 +1,13 @@
 {
   "protocols": [
-    { "name": "HTTP/login", "server": { "address": "127.0.0.1", "port": 80  }, "comment": "", "rules": [ { "name": "HTTP-login", "packet": "^GET /?login\\.cgi",    "remote": { "address": "any", "port": "any" } },
-                                                                                                               { "name": "HTTP-POST",  "packet": "^POST ",                "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "HTTP/login", "server": { "address": "127.0.0.1", "port": 80  }, "comment": "", "rules": [ { "name": "HTTP-login", "packet": "^GET /?login\\.cgi",    "remote": { "address": "any", "port": "any" } } ] },
 
-    { "name": "HTTP",       "server": { "address": "127.0.0.1", "port": 80  }, "comment": "", "rules": [ { "name": "HTTP-GET",   "packet": "^GET ",                 "remote": { "address": "any", "port": "any" } },
-                                                                                                               { "name": "HTTP-POST",  "packet": "^POST ",                "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "HTTP",       "server": { "address": "127.0.0.1", "port": 80  }, "comment": "", "rules": [ { "name": "HTTP-POST",   "packet": "^POST ",                 "remote": { "address": "any", "port": "any" } } ] },
+
+    { "name": "HTTP",       "server": { "address": "127.0.0.1", "port": 80  }, "comment": "", "rules": [ { "name": "HTTP-GET",   "packet": "^GET ",                 "remote": { "address": "any", "port": "any" } } ] },
+
+    { "name": "UPnP",       "server": { "address": "127.0.0.1", "port": 80  }, "comment": "", "rules": [ { "name": "UPnP",   "packet": "^M-SEARCH ",                 "remote": { "address": "any", "port": "any" } } ] },
+
     { "name": "HTTPS",      "server": { "address": "127.0.0.1", "port": 80  }, "comment": "", "rules": [ { "name": "HTTPS",           "packet": "^\\x16\\x03(\\x01|\\x02|\\x03)", "remote": { "address": "any", "port": "any" } } ] },
     
     { "name": "SSH",        "server": { "address": "127.0.0.1", "port": 2222  }, "comment": "", "rules": [ { "name": "SSH",           "packet": "^SSH-",                "remote": { "address": "any", "port": "any" } } ] },
@@ -12,6 +15,9 @@
     { "name": "VNC",        "server": { "address": "127.0.0.1", "port": 5900  }, "comment": "", "rules": [ { "name": "VNC",           "packet": "^RFB 003\\.",           "remote": { "address": "any", "port": "any" } } ] },
     { "name": "SMB",        "server": { "address": "127.0.0.1", "port": 445  }, "comment": "", "rules": [ { "name": "SMB",           "packet": "^\\x00\\x00..\\xFFSMB", "remote": { "address": "any", "port": "any" } } ] },
     { "name": "SIP",        "server": { "address": "127.0.0.1", "port": 5060  }, "comment": "", "rules": [ { "name": "SIP",           "packet": "^INVITE ",              "remote": { "address": "any", "port": "any" } } ] },
+
+    { "name": "cowrie",        "server": { "address": "127.0.0.1", "port": 2222  }, "comment": "", "rules": [ { "name": "cowrie",           "packet": "", "port": 22, "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "cowrie",        "server": { "address": "127.0.0.1", "port": 2223  }, "comment": "", "rules": [ { "name": "cowrie",           "packet": "", "port": 23, "remote": { "address": "any", "port": "any" } } ] },
 
     { "name": "dionaea",        "server": { "address": "127.0.0.1", "port": 21  }, "comment": "", "rules": [ { "name": "dionaea",           "packet": "", "port": 21, "remote": { "address": "any", "port": "any" } } ] },
     { "name": "dionaea",        "server": { "address": "127.0.0.1", "port": 42  }, "comment": "", "rules": [ { "name": "dionaea",           "packet": "", "port": 42, "remote": { "address": "any", "port": "any" } } ] },
@@ -30,7 +36,7 @@
 
     { "name": "rdpy",        "server": { "address": "127.0.0.1", "port": 3389  }, "comment": "", "rules": [ { "name": "rdpy",           "packet": "", "port": 3389, "remote": { "address": "any", "port": "any" } } ] },
 
-    { "name": "Telnet",     "server": { "address": "127.0.0.1", "port": 23  }, "comment": "", "rules": null }
+    { "name": "Telnet",     "server": { "address": "127.0.0.1", "port": 2223  }, "comment": "", "rules": null }
   ],
   "default_protocol": "Telnet"
 }

@@ -26,13 +26,15 @@ class ProtocolSettingList(object):
         # Portがマッチした場合はこちらを優先する
         for i in self.protocols:
             for j in i.rules:
-                if j.port == bind_port :
-                    return i
+                if j.port != None :
+                    if j.port == bind_port :
+                        return i
 
         for i in self.protocols:
             for j in i.rules:
-                if j.regex.match(packet) is not None:
-                    return i
+                if j.regex != None :
+                    if j.regex.match(packet) is not None:
+                        return i
 
         return self.default_protocol_setting if use_default_when_nomatch else None
 
@@ -59,9 +61,11 @@ class ProtocolSettingList(object):
                     rule.name   = j["name"]
                     rule.packet = j["packet"]
                     rule.port   = None
+                    rule.regex  = None
                     if "port" in j :
                         rule.port   = j["port"]
-                    rule.regex  = re.compile(rule.packet)
+                    if len(rule.packet) > 0 :
+                        rule.regex  = re.compile(rule.packet)
                     #rule.remote_address= j['remote']['address']
                     #rule.remote_port   = j['remote']['port']
 
