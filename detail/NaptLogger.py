@@ -27,9 +27,11 @@ except Exception as ex:
     Utils.print_exception(ex)
 
 class NaptLogger(object):
-    def __init__(self, file, elastic):
+    def __init__(self, logdir, elastic):
         self.lock       = Lock()
-        self.file       = file
+        self.dir        = logdir
+        if os.path.exists(self.dir) == False :
+            os.mkdir(self.dir)
         if(elastic == True) :
             self.elastic    = ElasticConnector()
         #self.packet_dir = None
@@ -116,7 +118,7 @@ class NaptLogger(object):
         with conn.lock:
             log     = self.create_log(conn.id, 'close')
 
-        self.append_log(log)
+        #self.append_log(log)
 
     def log_recv(self, conn, data, offset, size):
         Utils.expects_type(NaptConnection, conn, 'conn')
@@ -171,7 +173,10 @@ class NaptLogger(object):
 
     def append_line(self, line):            
         with self.lock:
-            with open(self.file, 'a') as f:
+            now = datetime.datetime.now()
+            tmpname = 'autonapt_{0:%Y%m%d}.log'.format(now)
+            filename = os.path.join(self.dir, tmpname)
+            with open(filename, 'a') as f:
                 f.write(line + "\n")
 
     def append_log(self, log):            
