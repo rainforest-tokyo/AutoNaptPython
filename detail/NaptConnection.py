@@ -75,8 +75,8 @@ class NaptConnection(object):
         try:
             self.server.connect(endpoint)   # blocking
 
-            self.client.socket.settimeout(5.0)
-            self.server.socket.settimeout(5.0)
+            #self.client.socket.settimeout(5.0)
+            #self.server.socket.settimeout(5.0)
 
             with self.lock:
                 if self.is_closed:
@@ -158,7 +158,7 @@ class NaptConnection(object):
     # private
     def recv_client(self):
         try:
-            self.client.socket.settimeout(5.0)
+            #self.client.socket.settimeout(5.0)
             #self.server.socket.settimeout(5.0)
             data= self.client.socket.recv(4096)
             e   = NaptConnectionEventArgs(self, data, 0, len(data))
@@ -180,7 +180,7 @@ class NaptConnection(object):
     def recv_server(self):
         try:
             #self.client.socket.settimeout(5.0)
-            self.server.socket.settimeout(5.0)
+            #self.server.socket.settimeout(5.0)
             data= self.server.socket.recv(4096)
             e   = NaptConnectionEventArgs(self, data, 0, len(data))
 
