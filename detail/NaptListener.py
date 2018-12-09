@@ -15,6 +15,8 @@ import sys
 import socket
 import select
 import struct
+import threading
+
 from enum import Enum
 from threading import Lock
 from Utils import Utils
@@ -82,7 +84,7 @@ class NaptListener(object):
         self.accepted(self, e)
 
     # private
-    def polling_callback(self, so, flag):
+    def polling_callback_thread(self, so, flag):
         if 0 != (flag & SocketPollFlag.Read):
             self.do_recv(so)
 
@@ -91,6 +93,14 @@ class NaptListener(object):
 
         if 0 != (flag & SocketPollFlag.Error):
             self.do_error(so)
+
+    def polling_callback(self, so, flag):
+        t = threading.Thread(target=self.polling_callback_thread, args=([so, flag]))
+        t.start()
+        t.join(60.0)
+        if t.is_alive() == True :
+            # Timeout
+            so.close()
 
     # protected override
     def do_recv(self, so):
