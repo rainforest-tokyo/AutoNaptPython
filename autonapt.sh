@@ -1,5 +1,9 @@
 #!/bin/bash
 
 ulimit -n 80000
-python3.6 autonapt.py --elastic --bind 133.34.157.64 --ports ./ports.json --protocols ./protocols.json --log /var/log/autonapt
+mkdir /var/log/autonapt
+chmod 755 /var/log/autonapt
+#python3.6 autonapt.py --bind <IP> --ports ./ports.json --protocols ./protocols.json --log /var/log/autonapt
+#python3.6 autonapt.py --elastic --bind <IP> --ports ./ports.json --protocols ./protocols.json --log /var/log/autonapt
+python3.6 autonapt.py --bind 172.30.0.84 --ports ./ports.json --protocols ./protocols.json --log /var/log/autonapt
 

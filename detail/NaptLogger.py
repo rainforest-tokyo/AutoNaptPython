@@ -30,6 +30,7 @@ class NaptLogger(object):
     def __init__(self, logdir, elastic):
         self.lock       = Lock()
         self.dir        = logdir
+        self.elastic    = None
         if os.path.exists(self.dir) == False :
             os.mkdir(self.dir)
         if(elastic == True) :
@@ -147,8 +148,9 @@ class NaptLogger(object):
                 #'packet':           Utils.get_escaped_string(data[0:size2])
             })
 
+        self.append_log(log)
+
         if( (self.elastic != None) and ('Telnet' not in protocol.name) ) :
-            self.append_log(log)
             self.elastic.store( log )
 
     def log_send(self, conn, data, offset, size):
