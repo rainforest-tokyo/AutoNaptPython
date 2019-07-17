@@ -1,28 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import socket
 import select
 import struct
-import threading
-
 from enum import Enum
-from threading import Lock
+#from threading import Lock
+from Utils  import DebugLock as Lock
 from Utils import Utils
 
 try:
-    from Event2 import Event2
+    from Event import Event
     from SocketSelector import SocketSelector
     from SocketPoller import SocketPoller, SocketPollFlag
     from NaptListenerEventArgs import NaptListenerEventArgs
@@ -37,9 +27,8 @@ class NaptListener(object):
         self.bindaddr   = bindaddr
         self.sockets    = {}    # Dictionary<int, Socket>
         self.status     = NaptListenerStatus.Stopped
-        self.port       = 0 
 
-        self.accepted   = Event2('NaptListenerEventArgs')
+        self.accepted   = Event('NaptListenerEventArgs')
 
     def __str__(self):
         return 'NaptListener{ %s }' %', '.join([
@@ -59,7 +48,6 @@ class NaptListener(object):
         so      = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
         bindaddr= '0.0.0.0' if self.bindaddr == 'any' else self.bindaddr
         endpoint= (bindaddr, port)
-        self.port       = port 
 
         print('  %s' % str(endpoint))
 
@@ -84,7 +72,7 @@ class NaptListener(object):
         self.accepted(self, e)
 
     # private
-    def polling_callback_thread(self, so, flag):
+    def polling_callback(self, so, flag):
         if 0 != (flag & SocketPollFlag.Read):
             self.do_recv(so)
 
@@ -94,37 +82,23 @@ class NaptListener(object):
         if 0 != (flag & SocketPollFlag.Error):
             self.do_error(so)
 
-    def polling_callback(self, so, flag):
-        t = threading.Thread(target=self.polling_callback_thread, args=([so, flag]))
-        t.start()
-        t.join(60.0)
-        if t.is_alive() == True :
-            # Timeout
-            so.close()
-
     # protected override
     def do_recv(self, so):
         Utils.expects_type(socket.socket, so, 'so')
 
         try:
-            so.settimeout(3.0)
-            so_accepted, remote= so.accept();
+            #accepted, remote= so.accept()
+            accepted, remote= Utils.accept(so)
 
-            so_accepted.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 0, 0))
+            accepted.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 0, 0))
 
-            e       = NaptListenerEventArgs(so_accepted, so, self.port);
+            e       = NaptListenerEventArgs(accepted, so);
 
             self.on_accepted(e)
         except Exception as ex:
-            print('do_recv: Exception', flush=True)
             Utils.print_exception(ex)
-            print('', flush=True)
-            try:
-                key = [k for k, v in self.sockets.items() if v == so][0]
-                self.remove_port(key)
-            except Exception as ex:
-                pass
-            #raise ex
+
+            raise ex
 
     # protected override
     def do_send(self, so):

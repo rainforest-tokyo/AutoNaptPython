@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import socket
@@ -25,7 +16,7 @@ try:
 except Exception as ex:
     Utils.print_exception(ex)
 
-class NaptListenerPart(SocketSelector):
+class NaptListenerPart(c):
     def __init__(self, bindaddr):
         super().__init__()
 
@@ -122,8 +113,6 @@ class NaptListenerPart(SocketSelector):
             accepted, remote= so.accept();
 
             accepted.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 0, 0))
-
-            accepted.settimeout(15.0)
 
             e       = NaptListenerEventArgs(accepted, so);
 

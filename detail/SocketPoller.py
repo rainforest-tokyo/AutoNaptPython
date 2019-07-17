@@ -1,23 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import socket
 import select
 import threading
 import time
-from threading import Lock
+import datetime
 from enum import Flag
+#from threading import Lock
+from Utils  import DebugLock as Lock
 from Utils import Utils
 
 try:
@@ -40,10 +33,11 @@ class SocketPoller(object):
         self.lock           = Lock()
         self.descripters    = {}
         self.fd_map         = {}
-        self.timeout        = 1.0
+        #self.timeout        = 1.0
+        self.timeout        = 5.0
         self.thread         = None
         self.running        = False
-        self.debug          = False
+        self.debug          = True
 
         self.started        = Event('EventArgs')
         self.stopped        = Event('EventArgs')
@@ -125,11 +119,8 @@ class SocketPoller(object):
         self.on_started(None)
 
         while(self.running):
-            try :
-                self.do_poll()
-                self.on_idle(None)
-            except :
-                pass
+            self.do_poll()
+            self.on_idle(None)
 
         self.on_stopped(None)
 
@@ -141,7 +132,10 @@ class SocketPoller(object):
         pass
 
     def invoke_callback(self, fd, flag):
+        print('invoke_callback: %s:%s' % (str(flag), str(fd)))
+
         callback = None
+
         with self.lock:
             if fd not in self.descripters:
                 return
@@ -242,7 +236,7 @@ class SocketPollerLinux(SocketPoller):
                     | (select.EPOLLOUT if bool(flag & SocketPollFlag.Write) else 0) \
                     | (select.EPOLLERR if bool(flag & SocketPollFlag.Error) else 0)
 
-        #print('register: %d:%X %d' % (fd.fileno(), pollflag, len(self.descripters)), flush=True)
+        #print('register: %d:%X' % (fd.fileno(), pollflag))
 
         self.poller.register(fd, pollflag)
 
@@ -263,14 +257,21 @@ class SocketPollerLinux(SocketPoller):
                 time.sleep(self.timeout)
                 return
 
-            status = self.poller.poll(self.timeout)
+            if self.debug:
+                Utils.dbg_print('before poll')
+
+            #status = self.poller.poll(self.timeout)
+            status = Utils.poll(self.poller, self.timeout)
+
+            if self.debug:
+                Utils.dbg_print('after poll: count = %d' % len(status))
 
             for fd, pollflag in status:
                 flag    = (SocketPollFlag.Read  if bool(pollflag & select.EPOLLIN)  else SocketPollFlag.Zero) \
                         | (SocketPollFlag.Write if bool(pollflag & select.EPOLLOUT) else SocketPollFlag.Zero) \
                         | (SocketPollFlag.Error if bool(pollflag & select.EPOLLERR) else SocketPollFlag.Zero)
 
-                #print('  signaled fd: %d' % fd, flush=True)
+                #print('  signaled fd: %d' % fd)
 
                 fd_obj = self.fd_map[fd]
 

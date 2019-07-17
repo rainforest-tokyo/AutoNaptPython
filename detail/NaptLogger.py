@@ -1,25 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import datetime
 import json
-import hashlib
-from threading import Lock
+#from threading import Lock
+from Utils  import DebugLock as Lock
 from Utils import Utils
-
-from ElasticConnector import ElasticConnector
-import geoip2.database
 
 try:
     from NaptConnection import NaptConnection
@@ -27,39 +15,11 @@ except Exception as ex:
     Utils.print_exception(ex)
 
 class NaptLogger(object):
-    def __init__(self, logdir, elastic):
+    def __init__(self, file):
         self.lock       = Lock()
-        self.dir        = logdir
-        self.elastic    = None
-        if os.path.exists(self.dir) == False :
-            os.mkdir(self.dir)
-        if(elastic == True) :
-            self.elastic    = ElasticConnector()
+        self.file       = file
         #self.packet_dir = None
         #self.save_packet= False
-
-        self.geoip_city_reader = geoip2.database.Reader(os.path.join( os.path.dirname( os.path.abspath( __file__ ) ), 'geoip/GeoLite2-City.mmdb'))
-        self.geoip_asn_reader = geoip2.database.Reader(os.path.join( os.path.dirname( os.path.abspath( __file__ ) ), 'geoip/GeoLite2-ASN.mmdb'))
-
-    def city_info(self, ip):
-        response = self.geoip_city_reader.city(ip)
-        return {
-            "iso_code": response.country.iso_code,
-            "name": response.country.name,
-            "divisions": response.subdivisions.most_specific.name,
-            "postal_code": response.postal.code,
-            "location": {
-                "lat": response.location.latitude,
-                "lon": response.location.longitude
-            }
-        }
-
-
-    def asn_info(self, ip):
-        response = self.geoip_asn_reader.asn( ip )
-        return {
-            "asn" : response.autonomous_system_organization
-        }
 
     def log_accepted(self, conn):
         Utils.expects_type(NaptConnection, conn, 'conn')
@@ -71,16 +31,11 @@ class NaptLogger(object):
             local   = conn.client.sockname
             log     = self.create_log(conn.id, 'accept', {
                 'client': {
-                    'remote':   { 'address': remote[0], 'port': remote[1], 
-                        'geoip': { 'city': self.city_info(remote[0]), 'asn': self.asn_info(remote[0])}
-                    },
+                    'remote':   { 'address': remote[0], 'port': remote[1] },
                     'local':    { 'address': local[0],  'port': local[1] }
             } })
 
         self.append_log(log)
-
-        if( self.elastic != None ) :
-            self.elastic.store( log )
 
     def log_connected(self, conn):
         Utils.expects_type(NaptConnection, conn, 'conn')
@@ -90,14 +45,14 @@ class NaptLogger(object):
         with conn.lock:
             status  = conn.tag
             protocol= status.protocol_setting
-            c_remote= conn.client.socket.getpeername()
-            c_local = conn.client.socket.getsockname()
-            s_remote= conn.server.socket.getpeername()
-            s_local = conn.server.socket.getsockname()
+            c_remote= conn.client.peername
+            c_local = conn.client.sockname
+            s_remote= conn.server.peername
+            s_local = conn.server.sockname
             log     = self.create_log(conn.id, 'connect', {
                 'protocol': protocol.name,
                 'client': {
-                    'remote':   { 'address': c_remote[0], 'port': c_remote[1] }, 
+                    'remote':   { 'address': c_remote[0], 'port': c_remote[1] },
                     'local':    { 'address': c_local[0],  'port': c_local[1] },
                 },
                 'server': {
@@ -108,9 +63,6 @@ class NaptLogger(object):
 
         self.append_log(log)
 
-        if( self.elastic != None ) :
-            self.elastic.store( log )
-
     def log_close(self, conn):
         Utils.expects_type(NaptConnection, conn, 'conn')
 
@@ -119,66 +71,45 @@ class NaptLogger(object):
         with conn.lock:
             log     = self.create_log(conn.id, 'close')
 
-        #self.append_log(log)
+        self.append_log(log)
 
     def log_recv(self, conn, data, offset, size):
         Utils.expects_type(NaptConnection, conn, 'conn')
 
         size2   = size
-        size2   = 256 if size2 > 256 else size2
+        #size2   = 256 if size2 > 256 else size2
         log     = None
-        store_data   = data[0:size2]
 
         with conn.lock:
-            status  = conn.tag
-            protocol= status.protocol_setting
-            c_remote= conn.client.socket.getpeername()
-            c_local = conn.client.socket.getsockname()
-
             log     = self.create_log(conn.id, 'recv', {
-                'protocol': protocol.name,
                 'packet_size':      size,
-                'packet':           Utils.get_string_from_bytes(store_data, 'charmap'),
-                'sha1':             hashlib.sha1(store_data).hexdigest(),
-                'client': {
-                    'remote':   { 'address': c_remote[0], 'port': c_remote[1] }, 
-                    'local':    { 'address': c_local[0],  'port': c_local[1] },
-                }
+                'packet':           Utils.get_string_from_bytes(data[0:size2], 'charmap')
                 #'packet':           Utils.get_string_from_bytes(data[0:size2], 'ascii')
                 #'packet':           Utils.get_escaped_string(data[0:size2])
             })
 
         self.append_log(log)
 
-        if( (self.elastic != None) and ('Telnet' not in protocol.name) ) :
-            self.elastic.store( log )
-
     def log_send(self, conn, data, offset, size):
         Utils.expects_type(NaptConnection, conn, 'conn')
 
         size2   = size
-        size2   = 256 if size2 > 256 else size2
+        #size2   = 256 if size2 > 256 else size2
         log     = None
-        store_data   = data[0:size2]
 
         with conn.lock:
             log     = self.create_log(conn.id, 'send', {
                 'packet_size':      size,
-                'packet':           Utils.get_string_from_bytes(store_data, 'charmap'),
-                'sha1':             hashlib.sha1(store_data).hexdigest()
+                'packet':           Utils.get_string_from_bytes(data[0:size2], 'charmap')
                 #'packet':           Utils.get_string_from_bytes(data[0:size2], 'ascii')
                 #'packet':           Utils.get_escaped_string(data[0:size2])
             })
 
-        # AWSのDiskが圧迫するので一旦コメントアウト
-        #self.append_log(log)
+        self.append_log(log)
 
     def append_line(self, line):            
         with self.lock:
-            now = datetime.datetime.now()
-            tmpname = 'autonapt_{0:%Y%m%d}.log'.format(now)
-            filename = os.path.join(self.dir, tmpname)
-            with open(filename, 'a') as f:
+            with open(self.file, 'a') as f:
                 f.write(line + "\n")
 
     def append_log(self, log):            

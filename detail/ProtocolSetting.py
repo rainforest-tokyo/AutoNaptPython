@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import re
@@ -22,21 +13,20 @@ class ProtocolSettingList(object):
         self.default_protocol_setting   = None
 
     # public
-    def match(self, packet, bind_port, use_default_when_nomatch):
-        # Portがマッチした場合はこちらを優先する
+    def match(self, packet, use_default_when_nomatch):
         for i in self.protocols:
             for j in i.rules:
-                if j.port != None :
-                    if j.port == bind_port :
-                        return i
-
-        for i in self.protocols:
-            for j in i.rules:
-                if j.regex != None :
-                    if j.regex.match(packet) is not None:
-                        return i
+                if j.match(packet) is not None:
+                    return i
 
         return self.default_protocol_setting if use_default_when_nomatch else None
+
+    def find(self, name):
+        for i in self.protocols:
+            if i.name == name:
+                return i
+
+        return None
 
     @staticmethod
     def from_json_file(jsonfile, keyname = 'protocols'):
@@ -60,12 +50,7 @@ class ProtocolSettingList(object):
                     rule        = RuleSettings()
                     rule.name   = j["name"]
                     rule.packet = j["packet"]
-                    rule.port   = None
-                    rule.regex  = None
-                    if "port" in j :
-                        rule.port   = j["port"]
-                    if len(rule.packet) > 0 :
-                        rule.regex  = re.compile(rule.packet)
+                    rule.regex  = re.compile(rule.packet)
                     #rule.remote_address= j['remote']['address']
                     #rule.remote_port   = j['remote']['port']
 
@@ -104,7 +89,6 @@ class RuleSettings(object):
         self.name       = ''
         self.packet     = ''
         self.regex      = None
-        self.port      = None
         #self.remote_address= ''
         #self.remote_port   = []
 

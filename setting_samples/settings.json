@@ -1,0 +1,54 @@
+{
+  "ports": [
+    { "port": "20",          "name": "FTP",         "timeout": 1.0, "default_protocol": "FTP",     "comment": "" },
+    { "port": "21",          "name": "FTP/data",    "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "22",          "name": "SSH",         "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "23",          "name": "Telnet",      "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "24",          "name": "24",          "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "25",          "name": "SMTP",        "timeout": 1.0, "default_protocol": "SMTP",    "comment": "" },
+    { "port": "26-79",       "name": "26-79",       "timeout": 1.0, "default_protocol": "SMTP",    "comment": "" },
+    { "port": "80",          "name": "HTTP",        "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+
+    { "port": "110",         "name": "POP3",        "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "443",         "name": "HTTPS",       "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "445",         "name": "SMB",         "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "1433",        "name": "SQLServer",   "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "3306",        "name": "MySQL",       "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "3389",        "name": "RDP",         "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "5060",        "name": "SIP",         "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "5900",        "name": "VNC",         "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "8080",        "name": "PROXY",       "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+
+    { "port": "2323",        "name": "2323",        "timeout": 1.0, "default_protocol": "Telnet",  "comment": "IoT Device" },
+    { "port": "5358",        "name": "5358",        "timeout": 1.0, "default_protocol": "Telnet",  "comment": "IoT Device" },
+    { "port": "6789",        "name": "6789",        "timeout": 1.0, "default_protocol": "Telnet",  "comment": "IoT Device" },
+    { "port": "7547",        "name": "7547",        "timeout": 1.0, "default_protocol": "Telnet",  "comment": "IoT Device" },
+    { "port": "10080",       "name": "10080",       "timeout": 1.0, "default_protocol": "Telnet",  "comment": "IoT Device" },
+    { "port": "10554",       "name": "10554",       "timeout": 1.0, "default_protocol": "Telnet",  "comment": "IoT Device" },
+    { "port": "19058",       "name": "19058",       "timeout": 1.0, "default_protocol": "Telnet",  "comment": "IoT Device" },
+    { "port": "23231",       "name": "23231",       "timeout": 1.0, "default_protocol": "Telnet",  "comment": "IoT Device" },
+    { "port": "37777",       "name": "37777",       "timeout": 1.0, "default_protocol": "Telnet",  "comment": "IoT Device" },
+    { "port": "52869",       "name": "52869",       "timeout": 1.0, "default_protocol": "Telnet",  "comment": "IoT Device" },
+
+    { "port": "20-9999",     "name": "20-9999",     "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "10000-19999", "name": "10000-19999", "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "20000-29999", "name": "20000-29999", "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "30000-39999", "name": "30000-39999", "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "40000-49999", "name": "40000-49999", "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" }
+  ],
+  "protocols": [
+    { "name": "HTTP/login", "server": { "address": "192.168.1.4", "port": 8001  }, "comment": "", "rules": [ { "name": "HTTP-login", "packet": "^GET /?login\\.cgi",    "remote": { "address": "any", "port": "any" } },
+                                                                                                             { "name": "HTTP-POST",  "packet": "^POST ",                "remote": { "address": "any", "port": "any" } } ] },
+
+    { "name": "HTTP",       "server": { "address": "192.168.1.4", "port": 80    }, "comment": "", "rules": [ { "name": "HTTP-GET",   "packet": "^GET ",                 "remote": { "address": "any", "port": "any" } },
+                                                                                                             { "name": "HTTP-POST",  "packet": "^POST ",                "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "SSH",        "server": { "address": "192.168.1.4", "port": 22    }, "comment": "", "rules": [ { "name": "",           "packet": "^SSH- ",                "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "VNC",        "server": { "address": "192.168.1.4", "port": 5900  }, "comment": "", "rules": [ { "name": "",           "packet": "^RFB 003\\.",           "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "SMB",        "server": { "address": "192.168.1.4", "port": 445   }, "comment": "", "rules": [ { "name": "",           "packet": "^\\x00\\x00..\\xFFSMB", "remote": { "address": "any", "port": "any" } },
+                                                                                                             { "name": "",           "packet": "^\\x00\\x00..\\xFESMB", "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "SIP",        "server": { "address": "192.168.1.4", "port": 5060  }, "comment": "", "rules": [ { "name": "",           "packet": "^INVITE ",              "remote": { "address": "any", "port": "any" } } ] },
+
+    { "name": "Telnet",     "server": { "address": "192.168.1.4", "port": 22    }, "comment": "", "rules": null }
+  ],
+  "default_protocol": "Telnet"
+}

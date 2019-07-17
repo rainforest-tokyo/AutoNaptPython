@@ -2,20 +2,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import json
 import re
+import socket
 import traceback
+import threading
+from threading import Lock
+from datetime import datetime
 
 ESCAPE_TABLE = [
     # 0      1        2        3        4        5        6        7        8        9        A        B        C        D        E        F
@@ -110,3 +105,120 @@ class Utils:
     @staticmethod
     def is_linux(name):
         return name == 'posix'
+
+    #--- API Wrap ---
+    @staticmethod
+    def dbg_print(s):
+        sys.stderr.write(s + '\n')
+
+    @staticmethod
+    def pool(epoll, timemout):
+        start   = datetime.now()
+        status  = epoll.poll(timeout)
+        complete= datetime.now()
+        elapsed = complete - start
+
+        Utils.check_elapsed(elapsed, timeout + 0.1, 'poll')
+
+    @staticmethod
+    def accept(fd):
+        Utils.expects_type(socket.socket, fd, 'fd')
+
+        start   = datetime.now()
+        rc      = fd.accept()
+        complete= datetime.now()
+        elapsed = complete - start
+
+        Utils.check_elapsed(elapsed, 0.1, 'accept')
+
+        return rc
+
+    @staticmethod
+    def connect(fd, endpoint):
+        Utils.expects_type(socket.socket, fd, 'fd')
+
+        start   = datetime.now()
+        rc      = fd.connect(endpoint)
+        complete= datetime.now()
+        elapsed = complete - start
+
+        Utils.check_elapsed(elapsed, 0.1, 'connect(%s)' % str(endpoint))
+
+        return rc
+
+    @staticmethod
+    def close(fd):
+        Utils.expects_type(socket.socket, fd, 'fd')
+
+        start   = datetime.now()
+
+        fd.close()
+
+        complete= datetime.now()
+        elapsed = complete - start
+
+        Utils.check_elapsed(elapsed, 0.1, 'close')
+
+    @staticmethod
+    def sendall(fd, data):
+        Utils.expects_type(socket.socket, fd, 'fd')
+
+        start   = datetime.now()
+        rc      = fd.sendall(data)
+        complete= datetime.now()
+        elapsed = complete - start
+
+        Utils.check_elapsed(elapsed, 0.1, 'sendall')
+
+        return rc
+
+    @staticmethod
+    def recv(fd, maxlen):
+        Utils.expects_type(socket.socket, fd, 'fd')
+
+        start   = datetime.now()
+        rc      = fd.recv(maxlen)
+        complete= datetime.now()
+        elapsed = complete - start
+
+        Utils.check_elapsed(elapsed, 0.1, 'recv')
+
+        return rc
+
+    @staticmethod
+    def check_elapsed(elapsed, check_span, label):
+        #if elapsed >= check_span:
+        if elapsed.total_seconds() >= check_span:
+            name= threading.current_thread().name
+            msg = '  @%s: check_elapsed(%d >= %d): %s' % (name, elapsed, check_span, label)
+
+            Utils.dbg_print(msg)
+            raise Exception(msg)
+
+class DebugLock(object):
+    def __init__(self, timeout = 1.0):
+        self.lock           = Lock()
+        self.timeout        = timeout
+        self.lock_threadname= None
+
+    def __enter__(self):
+        if self.lock.acquire(True, self.timeout):
+            self.lock_threadname    = threading.current_thread().name
+            return self # Locked
+
+        # Timeout
+        lockedname  = self.lock_threadname
+        name        = threading.current_thread().name
+        msg         = 'Lock timeout @%s current lock=%s' % (name, lockedname)
+
+        Utils.dbg_print(msg)
+        raise Exception(msg)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.lock_threadname        = None
+
+        self.lock.release()
+
+    @property
+    def locked(self):
+        return self.lock.locked

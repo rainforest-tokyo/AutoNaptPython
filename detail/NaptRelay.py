@@ -1,20 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import socket
 from enum import Enum
-from threading import Lock
+#from threading import Lock
+from Utils  import DebugLock as Lock
 from Utils import Utils
 
 try:
@@ -30,7 +22,7 @@ class NaptRelay(object):
         self.lock       = Lock()
         self.sockets    = {}    # Dictionary<Socket, NaptSocket>
         self.status     = NaptRelayStatus.Stopped
-        self.debug      = False
+        self.debug      = True
 
     def __str__(self):
         return 'NaptRelay { %s }' %', '.join([
@@ -42,17 +34,23 @@ class NaptRelay(object):
         with self.lock:
             with conn.lock:
                 if self.debug:
-                    print('add_connection(%s)' % str(conn), flush=True)
+                    print('add_connection(%s)' % str(conn))
 
                 if conn.client is not None and conn.client.socket is not None:
                     self.sockets[conn.client.socket]= conn.client
 
                     self.register_poll(conn.client.socket)
 
+                    if self.debug:
+                        print('  add_socket(client: %s)' % str(conn.client))
+
                 if conn.server is not None and conn.server.socket is not None:
                     self.sockets[conn.server.socket]= conn.server
 
                     self.register_poll(conn.server.socket)
+
+                    if self.debug:
+                        print('  add_socket(server: %s)' % str(conn.server))
 
                 conn.connected      +=self.conn_connected
                 conn.closed         +=self.conn_closed
@@ -60,9 +58,6 @@ class NaptRelay(object):
                 conn.server_closing +=self.conn_server_closing
                 conn.client_closed  +=self.conn_client_closed
                 conn.server_closed  +=self.conn_server_closed
-
-                if self.debug:
-                    print('add_connection(%s) done' % str(conn), flush=True)
 
     def register_poll(self, so):
         SocketPoller.get_instance().register(so, SocketPollFlag.ReadError, self.polling_callback)
