@@ -1,0 +1,7 @@
+{
+  "ports": [
+    { "port": "20-4999",     "name": "20-4999",     "timeout": 1.0, "default_protocol": "HTTP",  "comment": "" },
+    { "port": "5001-18880",     "name": "5001-50000",     "timeout": 1.0, "default_protocol": "HTTP",  "comment": "" },
+    { "port": "18890-50000",     "name": "5001-50000",     "timeout": 1.0, "default_protocol": "HTTP",  "comment": "" }
+  ]
+}

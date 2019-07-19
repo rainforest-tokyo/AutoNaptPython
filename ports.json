@@ -1,6 +1,10 @@
 {
   "ports": [
-    { "port": "20-4999",     "name": "20-4999",     "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" },
-    { "port": "5001-50000",     "name": "5001-50000",     "timeout": 1.0, "default_protocol": "Telnet",  "comment": "" }
+    { "port": "60-630",     "name": "60-630",     "timeout": 1.0, "default_protocol": "HTTP",  "comment": "" },
+    { "port": "640-4999",     "name": "640-4999",     "timeout": 1.0, "default_protocol": "HTTP",  "comment": "" },
+    { "port": "5001-8540",     "name": "5001-8540",     "timeout": 1.0, "default_protocol": "HTTP",  "comment": "" },
+    { "port": "8550-9100",     "name": "8550-9100",     "timeout": 1.0, "default_protocol": "HTTP",  "comment": "" },
+    { "port": "9400-18880",     "name": "9400-50000",     "timeout": 1.0, "default_protocol": "HTTP",  "comment": "" },
+    { "port": "18890-50000",     "name": "5001-50000",     "timeout": 1.0, "default_protocol": "HTTP",  "comment": "" }
   ]
 }

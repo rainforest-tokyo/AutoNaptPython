@@ -8,6 +8,8 @@
 
     { "name": "UPnP",       "server": { "address": "127.0.0.1", "port": 18888  }, "comment": "", "rules": [ { "name": "UPnP",   "packet": "^M-SEARCH ",                 "remote": { "address": "any", "port": "any" } } ] },
 
+    { "name": "HTTPS",      "server": { "address": "127.0.0.1", "port": 18888  }, "comment": "", "rules": [ { "name": "HTTPS",           "packet": "^\\x16\\x03(\\x01|\\x02|\\x03)", "remote": { "address": "any", "port": "any" } } ] },
+
     { "name": "Telnet",     "server": { "address": "127.0.0.1", "port": 18881  }, "comment": "", "rules": null }
   ],
   "default_protocol": "Telnet"

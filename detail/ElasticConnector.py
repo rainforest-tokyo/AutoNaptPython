@@ -21,7 +21,7 @@ from threading import Lock
 from Utils import Utils
 from datetime import datetime as dt
 
-from elasticsearch import Elasticsearch
+import elasticsearch
 
 class ElasticConnector(object):
     def __init__(self):
@@ -33,7 +33,18 @@ class ElasticConnector(object):
         conf_url          = config.get('env', 'url')
         conf_verify_certs = False if config.get('env', 'verify_certs').lower() == "false" else True
 
-        self.es = Elasticsearch(conf_url, verify_certs=False)
+        host = ['85a0c2f87cbb4272b8f6422ab8c2eb70.ap-northeast-1.aws.found.io']
+        awsauth = ('elastic', 'XmjaCg0gy9VgQQBte4EYM6hf')
+        self.es = elasticsearch.Elasticsearch(
+            hosts=host,
+            http_auth=awsauth,
+            use_ssl=True,
+            verify_certs=True,
+            scheme="https",
+            port=9243,
+            connection_class=elasticsearch.connection.RequestsHttpConnection
+        )
+
         self.settings = {
             "settings": {
               "index": {

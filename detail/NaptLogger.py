@@ -69,6 +69,7 @@ class NaptLogger(object):
             remote  = conn.client.peername
             local   = conn.client.sockname
             log     = self.create_log(conn.id, 'accept', {
+                'cloud': 'ynu',
                 'client': {
                     'remote':   { 'address': remote[0], 'port': remote[1], 
                         'geoip': { 'city': self.city_info(remote[0]), 'asn': self.asn_info(remote[0])}
@@ -78,8 +79,8 @@ class NaptLogger(object):
 
         self.append_log(log)
 
-        if( self.elastic != None ) :
-            self.elastic.store( log )
+#        if( self.elastic != None ) :
+#            self.elastic.store( log )
 
     def log_connected(self, conn):
         Utils.expects_type(NaptConnection, conn, 'conn')
@@ -94,6 +95,7 @@ class NaptLogger(object):
             s_remote= conn.server.socket.getpeername()
             s_local = conn.server.socket.getsockname()
             log     = self.create_log(conn.id, 'connect', {
+                'cloud': 'ynu',
                 'protocol': protocol.name,
                 'client': {
                     'remote':   { 'address': c_remote[0], 'port': c_remote[1] }, 
@@ -107,8 +109,8 @@ class NaptLogger(object):
 
         self.append_log(log)
 
-        if( self.elastic != None ) :
-            self.elastic.store( log )
+#        if( self.elastic != None ) :
+#            self.elastic.store( log )
 
     def log_close(self, conn):
         Utils.expects_type(NaptConnection, conn, 'conn')
@@ -135,19 +137,22 @@ class NaptLogger(object):
             c_local = conn.client.socket.getsockname()
 
             log     = self.create_log(conn.id, 'recv', {
+                'cloud': 'ynu',
                 'protocol': protocol.name,
                 'packet_size':      size,
                 'packet':           Utils.get_string_from_bytes(store_data, 'charmap'),
                 'sha1':             hashlib.sha1(store_data).hexdigest(),
                 'client': {
-                    'remote':   { 'address': c_remote[0], 'port': c_remote[1] }, 
+                    'remote':   { 'address': c_remote[0], 'port': c_remote[1],
+                        'geoip': { 'city': self.city_info(c_remote[0]), 'asn': self.asn_info(c_remote[0])}
+                    },
                     'local':    { 'address': c_local[0],  'port': c_local[1] },
                 }
                 #'packet':           Utils.get_string_from_bytes(data[0:size2], 'ascii')
                 #'packet':           Utils.get_escaped_string(data[0:size2])
             })
 
-        if( (self.elastic != None) and ('Telnet' not in protocol.name) ) :
+        if( self.elastic != None ) :
             self.append_log(log)
             self.elastic.store( log )
 
@@ -161,6 +166,7 @@ class NaptLogger(object):
 
         with conn.lock:
             log     = self.create_log(conn.id, 'send', {
+                'cloud': 'ynu',
                 'packet_size':      size,
                 'packet':           Utils.get_string_from_bytes(store_data, 'charmap'),
                 'sha1':             hashlib.sha1(store_data).hexdigest()
