@@ -24,9 +24,11 @@ def read_file( filename ) :
     for line in f :
         data = json.loads( line )
         if data['type'] == 'recv' :
-            if 'ynu' not in data :
-                data['cloud'] = 'ynu'
-            print(data)
+            data['cloud'] = 'sakura'
+            try :
+                print( data )
+            except :
+                pass
 
             elastic.store_log( data, datetime )
     f.close()

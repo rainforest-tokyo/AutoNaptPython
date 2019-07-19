@@ -59,7 +59,7 @@ class NaptLogger(object):
             remote  = conn.client.peername
             local   = conn.client.sockname
             log     = self.create_log(conn.id, 'accept', {
-                'cloud': 'ynu',
+                'cloud': 'sakura',
                 'client': {
                     'remote':   { 'ip': remote[0], 'port': remote[1],
                         'geoip': { 'city': self.city_info(remote[0]), 'asn': self.asn_info(remote[0])}
@@ -85,7 +85,7 @@ class NaptLogger(object):
             s_remote= conn.server.peername
             s_local = conn.server.sockname
             log     = self.create_log(conn.id, 'connect', {
-                'cloud': 'ynu',
+                'cloud': 'sakura',
                 'protocol': protocol.name,
                 'client': {
                     'remote':   { 'address': c_remote[0], 'port': c_remote[1] },
@@ -127,7 +127,7 @@ class NaptLogger(object):
             c_local = conn.client.socket.getsockname()
 
             log     = self.create_log(conn.id, 'recv', {
-                'cloud': 'ynu',
+                'cloud': 'sakura',
                 'protocol': protocol.name,
                 'packet_size':      size,
                 'packet':           Utils.get_string_from_bytes(store_data, 'charmap'),
@@ -155,7 +155,7 @@ class NaptLogger(object):
 
         with conn.lock:
             log     = self.create_log(conn.id, 'send', {
-                'cloud': 'ynu',
+                'cloud': 'sakura',
                 'packet_size':      size,
                 'packet':           Utils.get_string_from_bytes(store_data, 'charmap'),
                 'sha1':             hashlib.sha1(store_data).hexdigest()
