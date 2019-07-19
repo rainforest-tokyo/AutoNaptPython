@@ -1,21 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import datetime
 import json
-import hashlib
-from threading import Lock
+#from threading import Lock
+from Utils  import DebugLock as Lock
 from Utils import Utils
 
 from ElasticConnector import ElasticConnector
@@ -53,7 +44,6 @@ class NaptLogger(object):
             }
         }
 
-
     def asn_info(self, ip):
         response = self.geoip_asn_reader.asn( ip )
         return {
@@ -71,7 +61,7 @@ class NaptLogger(object):
             log     = self.create_log(conn.id, 'accept', {
                 'cloud': 'ynu',
                 'client': {
-                    'remote':   { 'address': remote[0], 'port': remote[1], 
+                    'remote':   { 'ip': remote[0], 'port': remote[1],
                         'geoip': { 'city': self.city_info(remote[0]), 'asn': self.asn_info(remote[0])}
                     },
                     'local':    { 'address': local[0],  'port': local[1] }
@@ -90,15 +80,15 @@ class NaptLogger(object):
         with conn.lock:
             status  = conn.tag
             protocol= status.protocol_setting
-            c_remote= conn.client.socket.getpeername()
-            c_local = conn.client.socket.getsockname()
-            s_remote= conn.server.socket.getpeername()
-            s_local = conn.server.socket.getsockname()
+            c_remote= conn.client.peername
+            c_local = conn.client.sockname
+            s_remote= conn.server.peername
+            s_local = conn.server.sockname
             log     = self.create_log(conn.id, 'connect', {
                 'cloud': 'ynu',
                 'protocol': protocol.name,
                 'client': {
-                    'remote':   { 'address': c_remote[0], 'port': c_remote[1] }, 
+                    'remote':   { 'address': c_remote[0], 'port': c_remote[1] },
                     'local':    { 'address': c_local[0],  'port': c_local[1] },
                 },
                 'server': {
@@ -148,12 +138,11 @@ class NaptLogger(object):
                     },
                     'local':    { 'address': c_local[0],  'port': c_local[1] },
                 }
-                #'packet':           Utils.get_string_from_bytes(data[0:size2], 'ascii')
-                #'packet':           Utils.get_escaped_string(data[0:size2])
             })
 
+        self.append_log(log)
+
         if( self.elastic != None ) :
-            self.append_log(log)
             self.elastic.store( log )
 
     def log_send(self, conn, data, offset, size):
@@ -174,7 +163,6 @@ class NaptLogger(object):
                 #'packet':           Utils.get_escaped_string(data[0:size2])
             })
 
-        # AWSのDiskが圧迫するので一旦コメントアウト
         #self.append_log(log)
 
     def append_line(self, line):            

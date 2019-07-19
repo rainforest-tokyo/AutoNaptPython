@@ -234,7 +234,7 @@ class ElasticConnector(object):
 
         #self.es.indices.create(index=index_name, body=self.settings)
         self.es.indices.create(index=index_name)
-        self.es.indices.put_mapping(index=index_name, doc_type='log', body=self.mapping)
+        #self.es.indices.put_mapping(index=index_name, doc_type='_doc', body=self.mapping)
 
     def store(self, datas):
         tdatetime = dt.now()
@@ -245,7 +245,17 @@ class ElasticConnector(object):
         tstr = datas['datetime']
         datas['datetime'] = dt.strptime(tstr, '%Y-%m-%d %H:%M:%S.%f')
 
-        return self.es.index(index=index_name, doc_type="log", body=datas)
+        return self.es.index(index=index_name, doc_type="_doc", body=datas)
+
+    def store_log(self, datas, datetime):
+        index_name = "autonapt-%s" % (datetime)
+        self.create( index_name )
+
+        # 2018-08-01 09:49:53.571078
+        tstr = datas['datetime']
+        datas['datetime'] = dt.strptime(tstr, '%Y-%m-%d %H:%M:%S.%f')
+
+        return self.es.index(index=index_name, doc_type="_doc", body=datas)
 
     def search(self, datas):
         return self.es.search(index="autonapt-*", body=datas)

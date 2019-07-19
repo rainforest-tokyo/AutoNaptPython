@@ -1,22 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import socket
 import select
 import threading
 import time
-from threading import Lock
+#from threading import Lock
+from Utils  import DebugLock as Lock
 from Utils import Utils
 
 try:

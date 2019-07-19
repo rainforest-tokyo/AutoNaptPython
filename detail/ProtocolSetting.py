@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import re
@@ -22,21 +13,27 @@ class ProtocolSettingList(object):
         self.default_protocol_setting   = None
 
     # public
-    def match(self, packet, bind_port, use_default_when_nomatch):
-        # Portがマッチした場合はこちらを優先する
+    def match(self, packet, use_default_when_nomatch):
         for i in self.protocols:
             for j in i.rules:
                 if j.port != None :
                     if j.port == bind_port :
                         return i
+                if j.match(packet) is not None:
+                    return i
 
+        return self.default_protocol_setting if use_default_when_nomatch else None
+
+    def find(self, name):
         for i in self.protocols:
             for j in i.rules:
                 if j.regex != None :
                     if j.regex.match(packet) is not None:
                         return i
+            if i.name == name:
+                return i
 
-        return self.default_protocol_setting if use_default_when_nomatch else None
+        return None
 
     @staticmethod
     def from_json_file(jsonfile, keyname = 'protocols'):
@@ -104,7 +101,6 @@ class RuleSettings(object):
         self.name       = ''
         self.packet     = ''
         self.regex      = None
-        self.port      = None
         #self.remote_address= ''
         #self.remote_port   = []
 

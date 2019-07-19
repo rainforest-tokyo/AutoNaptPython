@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import socket
@@ -17,7 +8,8 @@ import struct
 import threading
 from collections import deque
 from enum import Enum
-from threading import Lock
+#from threading import Lock
+from Utils  import DebugLock as Lock
 from Utils import Utils
 
 try:
@@ -37,7 +29,7 @@ class NaptSocket(object):
         self.status         = NaptSocketStatus.Disconnected if so is None else NaptSocketStatus.Connected
         self.send_buffers   = deque()
         self.tag            = None
-        self.debug          = False
+        self.debug          = True
 
         if self.socket is None:
             self.peername   = None
@@ -63,7 +55,8 @@ class NaptSocket(object):
         so = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
 
         so.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 0, 0))
-        so.connect(endpoint)
+        #so.connect(endpoint)
+        Utils.connect(so, endpoint)
 
         # バッファにデータがある場合は、送信処理を開始する
         with self.lock:
@@ -95,14 +88,12 @@ class NaptSocket(object):
 
     # private
     def do_close(self):
-        #Utils.assertion(self.lock.locked(), 'need lock')
+        Utils.assertion(self.lock.locked(), 'need lock')
 
         self.status = NaptSocketStatus.Closed
 
-        try:
-            self.socket.close() # non-blocking
-        except Exception as ex:
-            Utils.print_exception(ex)
+        #self.socket.close() # non-blocking
+        Utils.close(self.socket)
 
     # internal
     def push(self, data, offset, size):
@@ -137,11 +128,10 @@ class NaptSocket(object):
                 data= self.send_buffers.popleft()   # Dequeue
 
             try:
-                self.socket.settimeout(5.0)
-                self.socket.sendall(data)
+                #self.socket.sendall(data)
+                Utils.sendall(self.socket, data)
             except Exception as ex:
                 Utils.print_exception(ex)
-                self.do_close()
                     
 class NaptSocketStatus(Enum):
     Disconnected= 1

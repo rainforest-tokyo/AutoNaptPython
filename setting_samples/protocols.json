@@ -1,0 +1,17 @@
+{
+  "protocols": [
+    { "name": "HTTP/login", "server": { "address": "192.168.1.4", "port": 8001  }, "comment": "", "rules": [ { "name": "HTTP-login", "packet": "^GET /?login\\.cgi",    "remote": { "address": "any", "port": "any" } },
+                                                                                                             { "name": "HTTP-POST",  "packet": "^POST ",                "remote": { "address": "any", "port": "any" } } ] },
+
+    { "name": "HTTP",       "server": { "address": "192.168.1.4", "port": 80    }, "comment": "", "rules": [ { "name": "HTTP-GET",   "packet": "^GET ",                 "remote": { "address": "any", "port": "any" } },
+                                                                                                             { "name": "HTTP-POST",  "packet": "^POST ",                "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "SSH",        "server": { "address": "192.168.1.4", "port": 22    }, "comment": "", "rules": [ { "name": "",           "packet": "^SSH- ",                "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "VNC",        "server": { "address": "192.168.1.4", "port": 5900  }, "comment": "", "rules": [ { "name": "",           "packet": "^RFB 003\\.",           "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "SMB",        "server": { "address": "192.168.1.4", "port": 445   }, "comment": "", "rules": [ { "name": "",           "packet": "^\\x00\\x00..\\xFFSMB", "remote": { "address": "any", "port": "any" } },
+                                                                                                             { "name": "",           "packet": "^\\x00\\x00..\\xFESMB", "remote": { "address": "any", "port": "any" } } ] },
+    { "name": "SIP",        "server": { "address": "192.168.1.4", "port": 5060  }, "comment": "", "rules": [ { "name": "",           "packet": "^INVITE ",              "remote": { "address": "any", "port": "any" } } ] },
+
+    { "name": "Telnet",     "server": { "address": "192.168.1.4", "port": 22    }, "comment": "", "rules": null }
+  ],
+  "default_protocol": "Telnet"
+}

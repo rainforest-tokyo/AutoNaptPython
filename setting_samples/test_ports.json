@@ -1,0 +1,6 @@
+{
+  "ports": [
+    { "port": "80",          "name": "HTTP:80",       "timeout": 10.0, "default_protocol": "Telnet",  "comment": "" },
+    { "port": "81",          "name": "HTTP:81",       "timeout": 10.0, "default_protocol": "Telnet",  "comment": "" }
+  ]
+}

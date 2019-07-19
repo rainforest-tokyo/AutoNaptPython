@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#-----------------------------------
-# AutoNaptPython 
-#
-# Copyright (c) 2018 RainForest
-#
-# This software is released under the MIT License.
-# http://opensource.org/licenses/mit-license.php
-#-----------------------------------
-
 import os
 import sys
 import time
@@ -19,7 +10,7 @@ from Utils import Utils
 
 try:
     from NaptListener import NaptListener
-#    from NaptListener2 import NaptListener2
+    from NaptListener2 import NaptListener2
     from NaptRelay import NaptRelay
     from NaptConnection import NaptConnection
     from NaptLogger import NaptLogger
@@ -36,13 +27,12 @@ class AutoNapt(object):
         self.relay              = AutoNaptRelay(self)
         self.port_settings      = None
         self.protocol_settings  = None
-        self.port_map           = {}   # Dictionary<int, PortSetting>
+        self.port_map           = {}    # Dictionary<int, PortSetting>
         self.conn_id            = 0
         self.logging            = False
         self.logger             = None
-        self.debug              = False
-
-        self.accept_list        = []
+        self.debug              = True
+        self.transmit_timeout   = 60    # todo from setting
 
         self.listener.accepted  +=self.listener_accepted
 
@@ -51,20 +41,21 @@ class AutoNapt(object):
 
     @staticmethod
     def main(argv):
-        modpath     = os.path.dirname(os.path.realpath(__file__))
-        #ports       = modpath + '/../ports.json'
-        #protocols   = modpath + '/../protocols.json'
-        ports       = './ports.json'
-        protocols   = './protocols.json'
-        port_key    = 'ports'
-        protocol_key= 'protocols'
-        bind        = 'any'
-        logfile     = None
-        elastic     = False
+        modpath         = os.path.dirname(os.path.realpath(__file__))
+        #ports           = modpath + '/../ports.json'
+        #protocols       = modpath + '/../protocols.json'
+        ports           = './ports.json'
+        protocols       = './protocols.json'
+        port_key        = 'ports'
+        protocol_key    = 'protocols'
+        bind            = 'any'
+        logfile         = None
+        elastic         = False
+        transmit_timeout= 60
 
         i = 1
 
-        while i <= len(argv[1:]):
+        while i < len(argv[1:]):
             if argv[i] == '--ports':
                 ports       = argv[i + 1]
                 i = i + 2
@@ -86,6 +77,9 @@ class AutoNapt(object):
             elif argv[i] == '--elastic':
                 elastic     = True
                 i = i + 1
+            elif argv[i] == '--timeout':
+                transmit_timeout= int(argv[i + 1])
+                i = i + 2
             elif argv[i] == '--help':
                 return AutoNapt.usage()
             else:
@@ -95,6 +89,7 @@ class AutoNapt(object):
         napt = AutoNapt(bind)
         napt.port_settings      = PortSettingList.from_json_file(ports, port_key)
         napt.protocol_settings  = ProtocolSettingList.from_json_file(protocols, protocol_key)
+        napt.transmit_timeout   = transmit_timeout
 
         if logdir is not None:
             napt.logger = NaptLogger(logdir, elastic)
@@ -114,12 +109,13 @@ class AutoNapt(object):
 
     @staticmethod
     def usage():
-        print('python autonapt.py [--ports <port-setting.json>] [--protocols <protocol-setting.json>] [--bind <bind-ip-address>] [--log <logfile>] [--elastic]')
+        print('python autonapt.py [--ports <port-setting.json>] [--protocols <protocol-setting.json>] [--bind <bind-ip-address>] [--log <logfile>] [--elastic] [--timeout <seconds>]')
         print('  --ports     : lisenするポートの設定を記述したファイルを指定 規定値は ./ports.json')
         print('  --protocols : プロトコルの判定と接続先の設定を記述したファイルを指定 規定値は ./protocol.json')
         print('  --bind      : bindをするアドレスを指定 規定値はINADDR_ANYでbindする')
         print('  --log       : ログを記録する')
-        print('  --elastic   : elasticsearchにログを記録する')
+        print('  --elastic   : elasticsearch')
+        print('  --timeout   : 一定時間通信がない場合に接続を切断する')
 
         return 1
 
@@ -156,18 +152,6 @@ class AutoNapt(object):
     # private
     def listener_accepted(self, sender, e):
         conn        = NaptConnection(e.accepted, None)
-        conn.bind_port        = e.port
-
-        # Check Connection
-        remote  = conn.client.peername
-        ip_port = "%s:%d" % (remote[0], remote[1])
-        if ip_port in self.accept_list :
-            print('already conneced: %s' % (ip_port), flush=True)
-            conn.close()
-            return
-
-        self.accept_list.append( ip_port )
-
         local       = e.accepter.getsockname()
         #remote      = e.accepter.getpeername()
         port        = local[1]
@@ -184,7 +168,7 @@ class AutoNapt(object):
             self.conn_id+=1
 
         if self.debug:
-            print('accepted: %d: %s' % (conn.id, str(conn)), flush=True)
+            print('accepted: %d: %s' % (conn.id, str(conn)))
 
         if self.logging and self.logger is not None:    ### LOG ###
             self.logger.log_accepted(conn)
@@ -207,12 +191,6 @@ class AutoNapt(object):
     def conn_closed(self, sender, e):
         conn    = sender
 
-        # Remove Connection List
-        remote  = conn.client.peername
-        ip_port = "%s:%d" % (remote[0], remote[1])
-        if ip_port in self.accept_list :
-            self.accept_list.remove( ip_port )
-
         if self.debug:
             print('closed: %d: %s' % (conn.id, str(conn)))
 
@@ -226,26 +204,25 @@ class AutoNapt(object):
         if self.debug:
             print('recv: %d: %s' % (conn.id, str(conn)))
 
+        if self.logging and self.logger is not None:    ### LOG ###
+            self.logger.log_recv(conn, e.data, e.offset, e.size)
+
         with conn.lock:
             status  = conn.tag;
-            remote  = conn.client.peername
-            local   = conn.client.sockname
-            bind_port  = local[1]
 
             if conn.is_closed or status.connected or status.connecting:
                 return
 
             #s       = Utils.get_string_from_bytes(e.data[e.offset:e.offset+e.size], 'ascii')
             s       = Utils.get_string_from_bytes(e.data[e.offset:e.offset+e.size], 'charmap')
-            protocol= self.protocol_settings.match(s, bind_port, True)
+            protocol= self.protocol_settings.match(s, True)
+
+            print(str(protocol))
 
             # todo TLS reverse connection
             #conn.tls   = True
 
             self.connect(conn, protocol)
-
-        if self.logging and self.logger is not None:    ### LOG ###
-            self.logger.log_recv(conn, e.data, e.offset, e.size)
 
     # private
     def conn_server_recieved(self, sender, e):
@@ -263,10 +240,13 @@ class AutoNapt(object):
         Utils.expects_type(NaptConnection, conn, 'conn')
 
         status      = conn.tag;
-        port        = status.PortSetting;
-        protocol    = self.protocolt_settings.find(port.default_protocol)
+        port        = status.port_setting;
+        protocol    = self.protocol_settings.find(port.default_protocol)
 
-        self.connect(conn, protocol)
+        if conn.is_initial:
+            self.connect(conn, protocol)
+        else:
+            conn.check_timeout()
 
     # private
     def connect(self, conn, protocol):
@@ -278,13 +258,22 @@ class AutoNapt(object):
             addr                    = protocol.address
             port                    = protocol.port
             endpoint                = (addr, port)
+            conn.is_initial         = False
             status.connecting       = True
             status.protocol_setting = protocol
 
             conn.connect(endpoint)  # async
         except Exception as ex:
             Utils.print_exception(ex)
-            conn.close()
+
+    def disconnect(self, conn):
+        Utils.expects_type(NaptConnection,  conn,     'conn')
+
+        try:
+            #conn.close()
+            conn.close2()   # connection is locked
+        except Exception as ex:
+            Utils.print_exception(ex)
 
 # todo AutoNaptに統合
 class AutoNaptRelay(NaptRelay):
@@ -293,31 +282,53 @@ class AutoNaptRelay(NaptRelay):
 
         super().__init__()
 
-        self.owner  = owner
+        self.owner      = owner
+        #self.debug_idle = True
+        self.debug_idle = False
 
         SocketPoller.get_instance().idle += self.poller_idle
 
     def process_timeout(self):
-        return
-
         now = datetime.datetime.now()
 
-        # todo 未接続のみに最適化
-        for k, v in self.sockets.items():
+        if self.debug_idle:
+            print('%s: on_idle' % str(datetime.datetime.now()))
+
+        # self.sockets
+        sockets = self.sockets.copy()
+
+        #for k, v in self.sockets.items():
+        for k, v in sockets.items():
             conn    = v.owner
 
             with conn.lock:
                 status  = conn.tag
 
-                if status.connecting or status.connected:
-                    continue
+                #if status.connecting or status.connected:
+                #    continue
+                if conn.is_initial:
+                    # first payload timeout
+                    delta   = (now - status.create_time).total_seconds()
+                    setting = status.port_setting
 
-                delta   = (now - status.create_time).total_seconds()
-                setting = status.port_setting
+                    if self.debug_idle:
+                        print('  process_timeout/1: delta=%f timeout=%f'
+                              % (delta, setting.timeout))
 
-                # timeout, first packet has not been received yet.
-                if delta >= setting.timeout:
-                    self.owner.timeout(conn)
+                    # timeout, first packet has not been received yet.
+                    if delta >= setting.timeout:
+                        self.owner.timeout(conn)
+                else:
+                    # recv timeout
+                    delta   = (now - conn.lastrecvtime).total_seconds()
+
+                    if self.debug_idle:
+                        print('  process_timeout/2: delta=%f timeout=%f'
+                              % (delta, self.owner.transmit_timeout))
+                    
+                    if delta >= self.owner.transmit_timeout:
+                        # timeout disconnect
+                        self.owner.disconnect(conn)
 
     def poller_idle(self, sender, e):
         self.process_timeout()
@@ -354,12 +365,29 @@ class ConnectionStatus(object):
     def __init__(self, port_setting):
         Utils.expects_type(PortSetting, port_setting, 'port_setting')
 
+        now                     = datetime.datetime.now()
+
         self.connecting         = False
         self.connected          = False
         self.port_setting       = port_setting
         self.protocol_setting   = None
-        self.create_time        = datetime.datetime.now()
-        self.timoput_time       = self.create_time
+        self.create_time        = now
+        #self.timoput_time       = self.create_time + port_setting.timeout
+        self.last_send_time     = now
+        self.last_recv_time     = now
+        self.last_transmit_time = now
+
+    def update_send_time(self):
+        now                     = datetime.datetime.now()
+
+        self.last_send_time     = now
+        self.last_transmit_time = now
+
+    def update_recv_time(self):
+        now                     = datetime.datetime.now()
+
+        self.last_recv_time     = now
+        self.last_transmit_time = now
 
     def __str__(self):
         return 'ConnectionStatus { %s }' %', '.join([
